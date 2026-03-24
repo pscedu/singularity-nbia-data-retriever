@@ -1,0 +1,37 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%labels
+    Maintainer xAI
+    Version 1.0
+    NBIA_Data_Retriever_Version 4.4.3
+
+%post
+    # Set non-interactive frontend to avoid prompts during installation
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Update package lists and install dependencies
+    apt-get update
+    apt-get install -y \
+        libasound2 libbrotli1 libbsd0 libfreetype6 libgif7 libglib2.0-0 \
+        libgraphite2-3 libharfbuzz0b libice6 liblcms2-2 libmd0 libpng16-16 \
+        libsm6 libx11-6 libxau6 libxcb1 libxdmcp6 libxext6 libxi6 libxrender1 \
+        xdg-utils wget dpkg
+    rm -rf /var/lib/apt/lists/*
+
+    # Create directory for NBIA Data Retriever
+    mkdir -p /usr/share/desktop-directories/
+    mkdir -p /opt/nbia-data-retriever
+
+    # Download NBIA Data Retriever (version 4.4.3 for Ubuntu)
+    wget -P /opt/nbia-data-retriever https://github.com/CBIIT/NBIA-TCIA/releases/download/DR-4_4_3-TCIA-20240916-1/nbia-data-retriever_4.4.3-1_amd64.deb
+
+    # Install NBIA Data Retriever
+    dpkg -i /opt/nbia-data-retriever/nbia-data-retriever_4.4.3-1_amd64.deb
+
+    # Clean up downloaded package
+    rm -rf /opt/nbia-data-retriever/nbia-data-retriever_4.4.3-1_amd64.deb
+
+%runscript
+    # Command to run NBIA Data Retriever
+    /opt/nbia-data-retriever/bin/nbia-data-retriever "$@"
